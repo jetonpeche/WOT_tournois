@@ -1,0 +1,34 @@
+<app-bar-menu></app-bar-menu>
+
+<br /><br />
+<div class="container-fluid">
+    <form #e="ngForm">
+
+        <div class="form-group">
+            <label for="joueur">Joueur selectionné(e)</label>
+            <select class="form-control col-md-5" id="joueur" name="ID" ngModel>
+              <option *ngFor="let joueur of listeJoueur" [value]="joueur.ID">{{ joueur.NOM }}</option>
+            </select>
+        </div>
+    
+        <button class="btn btn-success" [disabled]="e.invalid" (click)="onInfoJoueur(e)">Adversaire random</button>
+    </form>
+    <br /><br />
+
+    <p>Carte selectionné: {{ carteSelectionne.LIBELLE }} <br />
+       Mode de bataille: Standard</p>
+
+    <p>Difference de palier: {{ differencePalier }}</p>
+
+    <p>Adversaire: {{ adversaire.NOM }}</p>
+
+    
+</div>
+
+<div *ngIf="succesAjout" class="alert alert-success" role="alert">
+    Le combat a été ajouté
+</div>
+
+<div *ngIf="erreurHttp" class="alert alert-danger" role="alert">
+    Vous n'avez pas de connexion internet veuillez reéssayer plus tard
+</div>

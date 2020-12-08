@@ -1,0 +1,166 @@
+<app-bar-menu></app-bar-menu>
+
+<div class="container-fluid">
+    <br />
+
+    <div class="row">
+        &nbsp;<button style="margin-left: 25%;" class="btn btn-success" data-toggle="modal" data-target="#ajouterCarte">
+            Ajouter une carte
+        </button> 
+    
+        <!-- bar de recherche -->
+        <form #f="ngForm" class="col-md-5" (keyup)="onChercheCarte(f)">
+            <input class="form-control" name="nomCarte" type="search" placeholder="Recherche carte par Nom" ngModel />
+        </form>
+    </div>
+
+
+    <br />
+    <div *ngIf="erreurHttp" class="alert alert-danger" role="alert">
+      Vous n'avez pas de connexion internet veuillez reéssayer plus tard
+    </div>
+
+    <div *ngIf="succesAjout" class="alert alert-success" role="alert">
+      La carte a été ajoutée
+    </div>
+
+    <div *ngIf="succesSupp" class="alert alert-success" role="alert">
+      La carte a été Supprimée
+    </div>
+
+    <div *ngIf="succesModif" class="alert alert-success" role="alert">
+      La carte a été Modifiée
+    </div>
+    <br />
+
+    <!-- tableau des cartes -->
+    <div class="container">
+      <h3>Listing des cartes</h3>
+      
+      <div class="scroller">
+        <table class="table table-striped table-dark">
+          <thead>
+            <tr>
+              <th scope="col">Nom de la carte</th>
+              <th scope="col">Modifier</th>
+              <th scope="col">Supprimer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let carte of listeCarte">        
+              <td>{{ carte.LIBELLE }}</td>
+              <td>
+                <button class="btn btn-warning" (click)="onInfosCarteAModifier(carte)" data-toggle="modal" data-target="#modifierCarte">
+                  Modifier
+                </button> 
+              </td>
+              <td><button class="btn btn-danger" (click)="onSuppCarte(carte)">Supprimer</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+</div>
+
+  
+  <!-- Modal ajouter carte -->
+  <div class="modal fade" id="ajouterCarte" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Ajouter carte</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form #e="ngForm">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="basic-addon1">Nom de la carte</span>
+                </div>
+                <input type="text" name="nom" class="form-control" aria-describedby="basic-addon1" ngModel required />
+              </div>
+
+              <p>Selectionner le(s) mode(s) de bataille</p>
+
+              <!-- type de bataille -->
+              <div class="form-group form-check">
+                <input name="type2" type="checkbox" class="form-check-input" id="Check2" ngModel />
+                <label class="form-check-label" for="Check2">Assaut</label>
+              </div>
+
+              <div class="form-group form-check">
+                <input name="type3" type="checkbox" class="form-check-input" id="Check3" ngModel />
+                <label class="form-check-label" for="Check3">impromptu</label>
+              </div>
+          </form>
+
+          <div *ngIf="succesAjout" class="alert alert-success" role="alert">
+            Le joueur a été ajouté
+          </div>
+
+          <div *ngIf="erreurHttp" class="alert alert-danger" role="alert">
+            Vous n'avez pas de connexion internet veuillez reéssayer plus tard
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-danger" data-dismiss="modal">Fermer</button>
+          <button class="btn btn-success" (click)="onAjouterCarte(e)">Ajouter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    <!-- Modal modifier carte -->
+    <div class="modal fade" id="modifierCarte" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modifier carte</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+          </button>
+          </div>
+          <div class="modal-body">
+            <form #g="ngForm">
+              <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">Nom de la carte</span>
+                  </div>
+                  <input type="hidden" name="id" [ngModel]="carteAModifier.ID" required />
+
+                  <!-- nom de la carte -->
+                  <input type="text" name="nom" class="form-control" aria-describedby="basic-addon1" [ngModel]="carteAModifier.LIBELLE" required />
+              </div>
+
+                <p>Selectionner le(s) mode(s) de bataille</p>
+  
+                <!-- standard -->
+                <div class="form-group form-check">
+                  <input disabled name="type1" type="checkbox" class="form-check-input" id="Check1" ngModel [checked]="carteAModifier.MODE_STANDARD == 'Oui'" />
+                  <label class="form-check-label" for="Check1">Standard</label>
+                </div>
+  
+                <!-- assaut -->
+                <div class="form-group form-check">
+                  <input name="type2" type="checkbox" class="form-check-input" id="Check2" ngModel [checked]="carteAModifier.MODE_ASSAUT == 'Oui'" />
+                  <label class="form-check-label" for="Check2">Assaut</label>
+                </div>
+  
+                <!-- impromptu-->
+                <div class="form-group form-check">
+                  <input name="type3" type="checkbox" class="form-check-input" id="Check3" ngModel [checked]="carteAModifier.MODE_IMPROMPTU == 'Oui'" />
+                  <label class="form-check-label" for="Check3">impromptu</label>
+                </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-danger" data-dismiss="modal">Fermer</button>
+            <button class="btn btn-success" data-dismiss="modal" [disabled]="g.invalid" (click)="onModifierCarte(g)">Modifier</button>
+          </div>
+        </div>
+      </div>
+    </div>

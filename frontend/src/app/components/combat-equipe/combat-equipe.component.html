@@ -1,0 +1,247 @@
+<app-bar-menu></app-bar-menu>
+<br />
+<div class="container-fluid">
+
+
+    <div class="accordion" id="accordionExample">
+
+        <!-- Administration des equipes -->
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h2 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        Administration Equipe
+                    </button>
+                </h2>
+            </div>
+      
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+                <div class="card-body">
+
+                    <div class="row">
+                        <button class="btn btn-success" data-toggle="modal" data-target="#ajouterEquipe">
+                            Ajouter une équipe
+                        </button>&nbsp;
+                
+                        <button class="btn btn-primary" data-toggle="modal" data-target=".listeEquipe">Liste des équipes</button>
+                    </div>
+                
+                
+                    <br /><br />
+                    <!-- ajout un joueur a une equipe-->
+                    <form #e="ngForm">
+                        <div class="form-row">
+                
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="joueur">Joueurs sans équipe</label>
+                                    <select class="form-control" name=joueur id="joueur" ngModel required>
+                                        <option *ngFor="let joueur of listeJoueurSansEquipe" [value]="joueur.ID">{{ joueur.NOM }} - {{ joueur.NIVEAU_PALIER }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="equipe">Equipes</label>
+                                    <select class="form-control" name="equipe" (change)="onCompositionEquipe($event.target.value)" id="equipe" ngModel required>
+                                        <option *ngFor="let equipe of listeEquipe" [value]="equipe.ID">{{ equipe.NOM_EQUIPE }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                
+                        <button class="btn btn-success" [disabled]="e.invalid" (click)="onAjouterJoueurEquipe(e)">Ajouter à l'équipe</button>
+                    </form>
+                
+                    <br />
+                    <!-- message confirmation / erreur -->
+                    <div *ngIf="ajoutSucces" class="alert alert-success" role="alert">
+                        L'ajout a été effectué
+                    </div>
+                
+                    <div *ngIf="suppSucces" class="alert alert-success" role="alert">
+                        La suppression a été effectué
+                    </div>
+                
+                    <div *ngIf="echecAjout" class="alert alert-danger" role="alert">
+                        Vous avez déjà un nom d'équipe qui s'appel comme sa
+                    </div>
+                
+                    <div *ngIf="erreurHttp" class="alert alert-danger" role="alert">
+                        Vous n'êtes pas connecte a internet, veuillez réessayer plus tard
+                    </div>
+                
+                      <br />
+
+                    <!-- liste des joueurs dans l'equipe -->
+                    <h5>Liste des joueurs dans l'équipe selectionnée</h5>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th scope="col">Nom</th>
+                            <th scope="col">Palier</th>
+                            <th scope="col">Supprimer</th>
+                        </tr>
+                        </thead>
+            
+                        <tbody>
+                            <tr *ngFor="let joueur of listeJoueurEquipe">
+                                <th>{{ joueur.NOM }}</th>
+                                <td>{{ joueur.NIVEAU_PALIER }}</td>
+                                <td>
+                                    <button class="btn btn-danger" (click)="onSuppJoueurEquipe(joueur)">Supp l'équipe</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- definition des matchs des equipes -->
+        <div class="card">
+            <div class="card-header" id="headingTwo">
+                <h2 class="mb-0">
+                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                    Matchmaking des équipes
+                </button>
+                </h2>
+            </div>
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                <div class="card-body">
+                    <!-- choix de l'équipe -->
+                    <form #g="ngForm">
+                        <div class="form-row">
+                            <div class="col">
+                                <label for="match">Premier match ? (oui = palier non prit en compte)</label>
+                                <select class="form-control" name="premierMatch" id="match" ngModel="Oui" required>
+                                    <option value="Oui">Oui</option>
+                                    <option value="Non">Non</option>
+                                </select>
+
+                                <!-- mode Bataille -->
+                                <label for="match">Petite equipe ? (Oui = standard, Non = assaut)</label>
+                                <select class="form-control" name="equipePetite" id="match" ngModel="Oui" required>
+                                    <option value="Oui">Oui</option>
+                                    <option value="Non">Non</option>
+                                </select>
+                            </div>
+
+                            <div class="col">
+                                <label for="equipe">Equipe selectionnée</label>
+                                <select class="form-control" name="equipe" id="equipe" ngModel required>
+                                    <option *ngFor="let ligne of listeEquipeSansMatch" [value]="ligne.ID">{{ ligne.NOM_EQUIPE }}</option>
+                                </select>
+                            </div>     
+                        </div>
+                        
+                        <br />
+                        <button *ngIf="!DerniereEquipe()" class="btn btn-success" [disabled]="g.invalid" (click)="onInfoEquipe(g)">Adversaire random</button>
+                        <button *ngIf="DerniereEquipe()" (click)="onPasseManche(g)" [disabled]="g.invalid" class="btn btn-warning">Passe manche</button>
+                    </form>
+                    <br />
+                    <!-- infos equipe tire au sort -->
+                    <p>Adversaire choisi: {{ equipeTireAuSort.NOM_EQUIPE }} <br />
+                       Carte Aleatoire petite equipe: {{ carteTireAuSortPetiteEquipe.LIBELLE }} <br />
+                       Carte Aleatoire grande equipe: {{ carteTireAuSortGrandeEquipe.LIBELLE }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- liste des equipes -->
+        <div class="card">
+            <div class="card-header" id="headingThree">
+              <h2 class="mb-0">
+                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                  Liste des équipes
+                </button>
+              </h2>
+            </div>
+            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+              <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th scope="col">Nom</th>
+                        <th scope="col">Points total</th>
+                        <th scope="col">Palier</th>
+                        <th scope="col">Supprimer l'équipe</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let equipe of listeEquipe">
+                        <th>{{ equipe.NOM_EQUIPE }}</th>
+                        <td>{{ equipe.POINTS_TOTAL_EQUIPE }}</td>
+                        <td>{{ equipe.LIBELLE }}</td>
+                        <td>
+                            <button class="btn btn-danger" (click)="onSupprimerEquipe(equipe)">Supprimer</button>
+                        </td>
+                      </tr>
+                    </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+    </div>
+</div>
+
+
+
+  
+  <!-- Modal ajouter equipe -->
+<div class="modal fade" id="ajouterEquipe" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">Ajouter une équipe</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form #f="ngForm">
+              <!-- nom de l'équipe -->
+            <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="basic-addon1">Nom de l'équipe</span>
+                </div>
+                <input type="text" maxlength="100" name="nom" class="form-control" aria-describedby="basic-addon1" ngModel required />
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-danger" data-dismiss="modal">Fermer</button>
+          <button class="btn btn-success" data-dismiss="modal" [disabled]="f.invalid" (click)="onAjouterEquipe(f)">Ajouter</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Modal liste equipe -->
+<div class="modal fade listeEquipe" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">Nom</th>
+                <th scope="col">Points total</th>
+                <th scope="col">Palier</th>
+                <th scope="col">Supprimer l'équipe</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let equipe of listeEquipe">
+                <th>{{ equipe.NOM_EQUIPE }}</th>
+                <td>{{ equipe.POINTS_TOTAL_EQUIPE }}</td>
+                <td>{{ equipe.LIBELLE }}</td>
+                <td>
+                    <button class="btn btn-danger" (click)="onSupprimerEquipe(equipe)">Supprimer</button>
+                </td>
+              </tr>
+            </tbody>
+        </table>
+    </div>
+  </div>
+</div>

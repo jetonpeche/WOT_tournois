@@ -1,0 +1,84 @@
+<div class="container-fluid">
+<br />
+
+<h2>Listing des matchs des participants</h2>
+<br />
+
+<p><b>Si vous n'etes pas inscript: vous passez le tour (+1 pts)</b></p>
+
+    <button *ngIf="matchEquipe" class="btn btn-success" (click)="onChangerListe()">Match solo</button>
+    <button *ngIf="!matchEquipe" class="btn btn-success" (click)="onChangerListe()">Match equipe</button>
+    <br /><br />
+
+    <!-- liste des matchs par equipe -->
+    <div *ngIf="matchEquipe">
+        <h5>Listing des matchs d'équipe</h5>
+        <div class="scroller">
+            <table  class="table table-striped table-dark">
+                <thead>
+                    <tr>
+                        <th scope="col">Nom de l'equipe</th>
+                        <th scope="col">Palier</th>
+                        <th scope="col"></th>
+                        <th scope="col">Nom d'équipe adversaire</th>
+                        <th scope="col">Palier</th>
+                        <th scope="col">Carte</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let ligne of listeMatchEquipe">
+                        <td>{{ ligne.NOM_EQUIPE }}</td>
+                        <td>{{ligne.NIVEAU_PALIER }}</td>
+                        <th>VS</th>
+                        <td>{{ ligne.NOM_EQUIPE_ADVERSE }}</td>
+                        <td>{{ ligne.NIVEAU_PALIER }}</td>
+                        <td>{{ ligne.LIBELLE }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- liste des matchs solo -->
+    <div *ngIf="!matchEquipe">
+        <h5>Listing des matchs solo</h5>
+        <div class="scroller">
+            <table  class="table table-striped table-dark">
+                <thead>
+                    <tr>
+                        <th scope="col">Nom joueur</th>
+                        <th scope="col">Victoire / Defaite</th>
+                        <th scope="col">Pts total</th>
+                        <th scope="col">Palier</th>
+                        <th scope="col">VS</th>
+                        <th scope="col">Nom joueur</th>
+                        <th scope="col">Victoire / Defaite</th>
+                        <th scope="col">Pts total</th>
+                        <th scope="col">Palier</th>
+                        <th scope="col">Carte</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let ligne of listeMatchSolo">
+                        <td>{{ ligne.NOM }}</td>
+                        <td>{{ligne.VICTOIRE }} / {{ ligne.DEFAITE }}</td>
+                        <td>{{ ligne.POINTS_TOTAL }}</td>
+                        <td>{{ ligne.NIVEAU_PALIER }}</td>
+                        <th>VS</th>
+                        <td>{{ ligne.NOM_ADVERSAIRE }}</td>
+                        <td>{{ligne.VICTOIRE_ADVERSAIRE }} / {{ ligne.DEFAITE_ADVERSAIRE }}</td>
+                        <td>{{ ligne.POINTS_TOTAL_ADVERSAIRE }}</td>
+                        <td>{{ ligne.NIVEAU_PALIER_ADVERSAIRE }}</td>
+                        <td>{{ ligne.LIBELLE }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div *ngIf="erreurHttp" class="alert alert-danger" role="alert">
+        Vous n'avez pas de connexion internet veuillez reéssayer plus tard
+      </div>
+</div>

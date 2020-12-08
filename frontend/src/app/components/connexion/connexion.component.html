@@ -1,0 +1,28 @@
+<div class="container-fluid">
+    <br />
+    <h1>Connexion</h1>
+    <br /><br />
+
+    <form #e="ngForm" class="container">
+        <div class="form-group col-md-5">
+            <label for="log">Login</label>
+            <input type="text" name="log" class="form-control" id="log" maxlength="30" ngModel required />
+        </div>
+
+        <div class="form-group col-md-5">
+            <label for="pwd">Mot de passe</label>
+            <input type="password" name="pwd" class="form-control" id="pwd" ngModel required />
+        </div>
+
+        <button class="btn btn-success" [disabled]="e.invalid" (click)="onSeConnecter(e)">Connexion</button>&nbsp;
+        <button class="btn btn-info" routerLink="vueParticipant">Liste des matchs</button>
+    </form>
+
+    <div *ngIf="erreurLog" class="alert alert-danger" role="alert">
+        Login ou mdp incorrect
+      </div>
+
+      <div *ngIf="erreurHttp" class="alert alert-danger" role="alert">
+        Vous n'avez pas de connexion internet veuillez reéssayer plus tard
+      </div>
+</div>

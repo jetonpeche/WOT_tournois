@@ -1,0 +1,276 @@
+<app-bar-menu></app-bar-menu>
+<br />
+
+<div class="container-fluid">
+
+    <button *ngIf="matchEquipe" class="btn btn-success" (click)="onChangerListe()">Match solo</button>&nbsp;
+    <button *ngIf="!matchEquipe" class="btn btn-success" (click)="onChangerListe()">Match equipe</button>&nbsp;
+
+    <button class="btn btn-danger" (click)="onSuppAllMatchEquipe()">Supprimer matchs equipe</button>&nbsp;
+    <button class="btn btn-danger"(click)="onSuppAllMatchSolo()">Supprimer matchs solo</button>
+    <br /><br />
+
+    <!-- liste des matchs par equipe -->
+    <div *ngIf="matchEquipe">
+        <h5>Listing des matchs d'équipe</h5>
+        <div class="scroller">
+            <table  class="table table-striped table-dark">
+                <thead>
+                    <tr>
+                        <th scope="col">Nom de l'equipe</th>
+                        <th scope="col">Palier</th>
+                        <th scope="col"></th>
+                        <th scope="col">Nom d'équipe adversaire</th>
+                        <th scope="col">Palier</th>
+                        <th scope="col">Carte</th>
+                        <th scope="col">Selectioner</th>
+                        <th scope="col">Supprimer</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let ligne of listeMatchEquipe">
+                        <td>{{ ligne.NOM_EQUIPE }}</td>
+                        <td>{{ligne.NIVEAU_PALIER }}</td>
+                        <th>VS</th>
+                        <td>{{ ligne.NOM_EQUIPE_ADVERSE }}</td>
+                        <td>{{ ligne.NIVEAU_PALIER }}</td>
+                        <td>{{ ligne.LIBELLE }}</td>
+                        <td>
+                            <button class="btn btn-primary" (click)="onSelectionnerMatch(ligne)" data-toggle="modal" data-target="#ajouterPointsPalier">
+                                Selectionner
+                            </button>
+                        </td>
+                        <td><button class="btn btn-danger" (click)="onSuppMatchEquipe(ligne)">Supprimer</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- liste des matchs solo -->
+    <div *ngIf="!matchEquipe">
+        <h5>Listing des matchs solo</h5>
+        <div class="scroller">
+            <table  class="table table-striped table-dark">
+                <thead>
+                    <tr>
+                        <th scope="col">Nom joueur</th>
+                        <th scope="col">Victoire / Defaite</th>
+                        <th scope="col">Pts total</th>
+                        <th scope="col">Palier</th>
+                        <th scope="col">VS</th>
+                        <th scope="col">Nom joueur</th>
+                        <th scope="col">Victoire / Defaite</th>
+                        <th scope="col">Pts total</th>
+                        <th scope="col">Palier</th>
+                        <th scope="col">Carte</th>
+                        <th scope="col">Modifier</th>
+                        <th scope="col">Supprimer</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let ligne of listeMatchSolo">
+                        <td>{{ ligne.NOM }}</td>
+                        <td>{{ligne.VICTOIRE }} / {{ ligne.DEFAITE }}</td>
+                        <td>{{ ligne.POINTS_TOTAL }}</td>
+                        <td>{{ ligne.NIVEAU_PALIER }}</td>
+                        <th>VS</th>
+                        <td>{{ ligne.NOM_ADVERSAIRE }}</td>
+                        <td>{{ligne.VICTOIRE_ADVERSAIRE }} / {{ ligne.DEFAITE_ADVERSAIRE }}</td>
+                        <td>{{ ligne.POINTS_TOTAL_ADVERSAIRE }}</td>
+                        <td>{{ ligne.NIVEAU_PALIER_ADVERSAIRE }}</td>
+                        <td>{{ ligne.LIBELLE }}</td>
+                        <td>
+                            <button class="btn btn-primary" (click)="onSelectionnerMatchSolo(ligne)" data-toggle="modal" data-target="#modifJoueurMatch">
+                                Modifier
+                            </button>
+                        </td>
+                        <td><button class="btn btn-danger" (click)="onSuppMatchSolo(ligne)">Supprimer</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="succesModif" class="alert alert-success" role="alert">
+    La modification a été effectuée
+</div>
+
+<div *ngIf="erreurModif" class="alert alert-danger" role="alert">
+    Veuillez entrer des nombres / chiffres entier
+</div>
+
+<div *ngIf="erreurHttp" class="alert alert-danger" role="alert">
+    Vous n'avez pas de connexion internet veuillez reéssayer plus tard
+</div>
+  
+    <!-- Modal match equipe -->
+    <div class="modal fade" id="ajouterPointsPalier" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalCenterTitle">Administration points / Palier</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <form #e="ngForm">
+
+                <!-- ID des equipes du match -->
+                <input type="hidden" name="ID" [ngModel]="matchEquipeSelectionne.ID" required />
+                <input type="hidden" name="ID_ADVERSE" [ngModel]="matchEquipeSelectionne.ID_ADVERSE" required />
+
+                <!-- equipe 1 -->
+                <div class="form-row">
+                    <!-- Nom equipe -->
+                    <div class="col">
+                        <input readonly name="NOM_EQUIPE" type="text" class="form-control-plaintext" [(ngModel)]="matchEquipeSelectionne.NOM_EQUIPE" required />
+                    </div>
+                    <!-- palier -->
+                    <div class="col">
+                        <select name="NIVEAU_PALIER" class="form-control" [(ngModel)]="matchEquipeSelectionne.NIVEAU_PALIER" required>
+                            <option *ngFor="let palier of listePalier" [value]="palier.NIVEAU">{{ palier.LIBELLE }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- points -->
+                <div class="form-group">
+                    <label for="pts">Points total de l'équipe</label>
+                    <input type="number" min="0" step="1" name="POINTS_TOTAL_EQUIPE" class="form-control" id="pts" [(ngModel)]="matchEquipeSelectionne.POINTS_TOTAL_EQUIPE" required />
+                </div>
+
+                <hr />
+
+                <!-- equipe adverse -->
+                <div class="form-row">
+                    <!-- Nom equipe -->
+                    <div class="col">
+                        <input readonly name="NOM_EQUIPE_ADVERSE" type="text" class="form-control-plaintext" [(ngModel)]="matchEquipeSelectionne.NOM_EQUIPE_ADVERSE" required />
+                    </div>
+                    <!-- palier -->
+                    <div class="col">
+                        <select name="NIVEAU_PALIER_ADVERSE" class="form-control" [(ngModel)]="matchEquipeSelectionne.NIVEAU_PALIER_ADVERSE" required>
+                            <option *ngFor="let palier of listePalier" [value]="palier.NIVEAU">{{ palier.LIBELLE }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- points -->
+                <div class="form-group">
+                    <label for="pts">Points total de l'équipe</label>
+                    <input type="number" min="0" step="1" name="POINTS_TOTAL_EQUIPE_ADVERSE" class="form-control" id="pts" [(ngModel)]="matchEquipeSelectionne.POINTS_TOTAL_EQUIPE_ADVERSE" required />
+                </div>
+
+            </form>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-danger" data-dismiss="modal">fermer</button>
+            <button class="btn btn-success" data-dismiss="modal" [disabled]="e.invalid" (click)="onModifierPalierPointsEquipe(e)">Enregistrer</button>
+        </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Modal match solo -->
+    <div class="modal fade" id="modifJoueurMatch" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Administration match solo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form #f="ngForm">
+
+                    <!-- ID des equipes du match -->
+                    <input type="hidden" name="ID_JOUEUR" [ngModel]="matchSoloSelectionne.ID" required />
+                    <input type="hidden" name="ID_ADVERSAIRE" [ngModel]="matchSoloSelectionne.ID_ADVERSAIRE" required />
+
+                    <!-- joueur 1 -->
+                    <div class="form-row">
+                        <!-- Nom -->
+                        <div class="col">
+                            <input readonly name="NOM" type="text" class="form-control-plaintext" [(ngModel)]="matchSoloSelectionne.NOM" required />
+                        </div>
+                        <!-- palier -->
+                        <div class="col">
+                            <select name="NIVEAU_PALIER" class="form-control" [(ngModel)]="matchSoloSelectionne.NIVEAU_PALIER" required>
+                                <option *ngFor="let palier of listePalier" [value]="palier.NIVEAU">{{ palier.LIBELLE }}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Victoire -->
+                        <div class="col">
+                            <label for="vict">Victoire</label>
+                            <input name="VICTOIRE" type="number" min="0" step="1" id="vict" class="form-control-plaintext" [(ngModel)]="matchSoloSelectionne.VICTOIRE" required />
+                        </div>
+                        <!-- Defaite -->
+                        <div class="col">
+                            <label for="def">Defaite</label>
+                            <input name="DEFAITE" type="number" min="0" step="1" id="def" class="form-control-plaintext" [(ngModel)]="matchSoloSelectionne.DEFAITE" required />
+                        </div>
+                    </div>
+
+                    <!-- points -->
+                    <div class="form-group">
+                        <label for="pts">Points total</label>
+                        <input type="number" min="0" step="1" name="POINTS_TOTAL" class="form-control" id="pts" [(ngModel)]="matchSoloSelectionne.POINTS_TOTAL" required />
+                    </div>
+
+                    <hr />
+
+                    <!-- Joueur adverse -->
+                    <div class="form-row">
+                        <!-- Nom adversaire -->
+                        <div class="col">
+                            <input readonly name="NOM_ADVERSAIRE" type="text" class="form-control-plaintext" [(ngModel)]="matchSoloSelectionne.NOM_ADVERSAIRE" required />
+                        </div>
+                        <!-- palier ADVAIRE -->
+                        <div class="col">
+                            <select name="NIVEAU_PALIER_ADVERSAIRE" class="form-control" [(ngModel)]="matchSoloSelectionne.NIVEAU_PALIER_ADVERSAIRE" required>
+                                <option *ngFor="let palier of listePalier" [value]="palier.NIVEAU">{{ palier.LIBELLE }}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Victoire ADVERSAIRE -->
+                        <div class="col">
+                            <label for="vict">Victoire</label>
+                            <input name="VICTOIRE_ADVERSAIRE" type="number" min="0" step="1" id="vict" class="form-control-plaintext" [(ngModel)]="matchSoloSelectionne.VICTOIRE_ADVERSAIRE" required />
+                        </div>
+                        <!-- Defaite ADVERSAIRE -->
+                        <div class="col">
+                            <label for="def">Defaite</label>
+                            <input name="DEFAITE_ADVERSAIRE" type="number" min="0" step="1" id="def" class="form-control-plaintext" [(ngModel)]="matchSoloSelectionne.DEFAITE_ADVERSAIRE" required />
+                        </div>
+                    </div>
+
+                    <!-- points ADVERSAIRE -->
+                    <div class="form-group">
+                        <label for="pts">Points total de l'équipe</label>
+                        <input type="number" min="0" step="1" name="POINTS_TOTAL_ADVERSAIRE" class="form-control" id="pts" [(ngModel)]="matchSoloSelectionne.POINTS_TOTAL_ADVERSAIRE" required />
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-danger" data-dismiss="modal">Fermer</button>
+                <button class="btn btn-success" data-dismiss="modal" [disabled]="f.invalid" (click)="onModifierInfoJoueurMatchSolo(f)">Enregistrer</button>
+            </div>
+            </div>
+        </div>
+    </div>

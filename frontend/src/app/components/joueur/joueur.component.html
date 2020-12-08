@@ -1,0 +1,183 @@
+<app-bar-menu></app-bar-menu>
+<br />
+
+<div class="container">
+
+    <div class="row">
+
+        <!-- Button trigger modal -->
+        <button class="btn btn-success" data-toggle="modal" data-target="#ajouterJoueur">
+            Ajouter Joueur
+        </button>&nbsp;
+
+        <button class="btn btn-danger" (click)="onSuppAllJoueur()">Supp tous les Joueurs</button>
+
+        <form #e="ngForm" class="col-md-5" (keyup)="onChercheJoueur(e)">
+            <input type="text" placeholder="recherche par nom du joueur" name="nom" class="form-control" ngModel />
+        </form>       
+    </div>
+    <br />
+    <h3>Récap des Joueurs</h3>
+
+    <div *ngIf="erreurHttp" class="alert alert-danger" role="alert">
+      Vous n'avez pas de connexion internet veuillez reéssayer plus tard
+    </div>
+
+    <div *ngIf="erreurAjout" class="alert alert-danger" role="alert">
+      Les points total doivent etre un nombre ou chiffre entier
+    </div>
+
+    <div *ngIf="succesSupp" class="alert alert-success" role="alert">
+      Le joueur été supprimé
+    </div>
+
+    <div *ngIf="succesModif" class="alert alert-success" role="alert">
+      La modification été effectué
+    </div>
+
+    <br />
+</div>
+
+<!-- liste des joueurs -->
+<div class="scroller">
+  <table class="container-fluid table table-striped table-dark">
+      <thead>
+          <tr>
+              <th scope="col">Nom</th>
+              <th scope="col">Win8</th>
+              <th scope="col">Palier</th>
+              <th scope="col">Victoire / Defaite</th>
+              <th scope="col">Points Total</th>
+              <th scope="col">Membre clan</th>
+              <th scope="col">Don</th>
+              <th scope="col">Equipe</th>
+              <th scope="col">Modifier</th>
+              <th scope="col">Supprimer</th>
+          </tr>
+      </thead>
+      <tbody>
+          <tr *ngFor="let joueur of listeJoueur">
+              <th>{{ joueur.NOM }}</th>
+              <td>{{ joueur.WIN8 }}</td>
+              <td>{{ joueur.LIBELLE }}</td>
+              <td>{{ joueur.VICTOIRE }} / {{ joueur.DEFAITE }}</td>
+              <td>{{ joueur.POINTS_TOTAL }}</td>
+              <td>{{ joueur.MEMBRE_CLAN }}</td>
+              <td>{{ joueur.DON }} &euro;</td>
+              <td>{{ joueur.NOM_EQUIPE }}</td>
+              <td>
+                <button class="btn btn-warning" data-toggle="modal" (click)="onInfoJoueur(joueur)" data-target="#modifierJoueur">Modifier</button>
+              </td>
+              <td>
+                <button class="btn btn-danger" (click)="onSuppJoueur(joueur)">Supprimer</button>
+              </td>
+          </tr>
+      </tbody>
+  </table>
+</div>
+
+  <!-- Modal ajouter joueur -->
+  <div class="modal fade" id="ajouterJoueur" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Ajouter joueur</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <form #f="ngForm">
+                <div class="form-group">
+                    <label for="nom">Nom joueur</label>
+                    <input type="text" name="nom" class="form-control" id="nom" maxlength="30" ngModel required>
+                </div>
+        
+                <div class="form-group">
+                    <label for="win8">Win8</label>
+                    <input type="number" name="win8" class="form-control" id="win8" ngModel required>
+                </div>
+
+                <div class="form-group">
+                  <label for="don">Montant du don</label>
+                  <input type="number" min="0" name="don" class="form-control" id="don" ngModel required>
+              </div>
+
+              <div class="form-group">
+                <label for="clan">Membre du clan</label>
+                <select name="clan" class="form-control"d id="clan" ngModel required>
+                  <option value="Oui">Oui</option>
+                  <option value="Non">Non</option>
+                </select>
+            </div>
+            </form>
+
+            <div *ngIf="succesAjout" class="alert alert-success" role="alert">
+                Le joueur a été ajouté
+            </div>
+
+            <div *ngIf="erreurHttp" class="alert alert-danger" role="alert">
+              Vous n'avez pas de connexion internet veuillez reéssayer plus tard
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-danger" data-dismiss="modal">Fermer</button>
+          <button class="btn btn-success" [disabled]="f.invalid" (click)="onAjouterJoueur(f)">Ajouter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal modifier joueur -->
+  <div class="modal fade" id="modifierJoueur" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Modifier joueur: {{ joueurSelectionne.NOM }}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form #g="ngForm">
+
+            <input type="hidden" name="ID" [ngModel]="joueurSelectionne.ID" required />
+
+            <!-- don -->
+            <div class="form-row">
+              <div class="col">
+                <div class="form-group">
+                  <div class="col-sm-10">
+                    <label for="don">Don</label>
+                    <input type="number" min="0" id="don" class="form-control" name="DON" [(ngModel)]="joueurSelectionne.DON" required />
+                  </div>
+                </div>
+              </div>
+
+              <!-- points total-->
+              <div class="col">
+                <div class="col-sm-10">
+                  <label for="PTS">Points total</label>
+                  <input type="number" min="0" step="1" id="PTS" class="form-control" name="POINTS_TOTAL" [(ngModel)]="joueurSelectionne.POINTS_TOTAL" required />
+                </div>
+              </div>
+            </div>
+
+            <!-- membre clan -->
+            <div class="form-group">
+              <label for="clan">Membre clan ?</label>
+              <select class="form-control" name="MEMBRE_CLAN" id="clan" [(ngModel)]="joueurSelectionne.MEMBRE_CLAN" required>
+                <option value="Oui">Oui</option>
+                <option value="Non">Non</option>
+              </select>
+            </div>
+
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-danger" data-dismiss="modal">Fermer</button>
+          <button class="btn btn-success" data-dismiss="modal" [disabled]="g.invalid" (click)="onModifJoueur(g)">Ajouter</button>
+        </div>
+      </div>
+    </div>
+  </div>

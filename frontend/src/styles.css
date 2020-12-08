@@ -1,0 +1,21 @@
+/* You can add global styles to this file, and also import other style files */
+*
+{
+    letter-spacing: 1px;
+}
+
+li
+{
+    font-size: 1em;
+}
+
+p{
+    font-size: 1em;
+}
+
+.scroller {
+
+    height: 600px;
+    overflow-y: scroll;
+    scrollbar-width: thin;
+  }
